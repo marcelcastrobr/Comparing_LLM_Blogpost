@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langchain = ">=0.0.94"
+openai = ">=0.26.5"
+transformers = ">=4.26.1"
+sentencepiece = "*"
+accelerate = "*"
+sentence-transformers = "*"
+torch = ">=2.0.0"
+lightning = ">=2.0.0"
+tqdm = "*"
+numpy = "*"
+bitsandbytes = "*"
+datasets = "*"
+jsonargparse = {extras = ["signatures"], version = "*"}
+boto3 = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"

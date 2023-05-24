@@ -1,12 +1,19 @@
 # %%
 import torch 
 from pathlib import Path
-from Llama.model_lit_llama import  LitLlamaPipeline
-from Alpaca.model_lit_llama_alpaca import  AlpacaPipeline
+#from Llama.model_lit_llama import  LitLlamaPipeline
+#from Alpaca.model_lit_llama_alpaca import  AlpacaPipeline
 from HF_models.models_HF import CustomPipeline
 from langchain.llms import OpenAI
 from langchain.chains import LLMChain  
 from langchain.prompts import PromptTemplate  
+from langchain import PromptTemplate, SagemakerEndpoint
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
+from typing import Dict
+import json
+
+
+
 import os
 
 model_ids_hf = [
@@ -24,12 +31,31 @@ model_ids_hf = [
         "t5-11b",
         "ul2",
         "OPT",
+        "google/flan-t5-xl",
 ]
 
 # If you decide to  use GPT provide a  your key:
 os.environ["OPENAI_API_KEY"] = ''
-model_id = "OPT"
+model_id = "google/flan-t5-xl"
 print(model_id)
+
+
+class ContentHandler(LLMContentHandler):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def transform_input(self, prompt: str, model_kwargs: Dict) -> bytes:
+        input_str = json.dumps({'text_inputs': prompt, **model_kwargs})
+        return input_str.encode('utf-8')
+    
+    def transform_output(self, output: bytes) -> str:
+        response_json = json.loads(output.read().decode("utf-8"))
+        return response_json["generated_texts"][0]
+    
+content_handler = ContentHandler()
+max_length = 300
+
+
 
 if model_id == "Llama":
     from Llama.covert_llama_weights import meta_weights_for_nano_model
@@ -39,13 +65,21 @@ if model_id == "Llama":
     #     tokenizer_path = Path(your_tokenizer_path),
     #     model_size=model_size,
     # )
-    llm = LitLlamaPipeline()
+    #llm = LitLlamaPipeline()
 elif model_id == "GPT3":
     llm = OpenAI(temperature=.75, model_name="text-davinci-003")
 elif model_id == "GPT3.5":
     llm = OpenAI(temperature=.75, model_name= "gpt-3.5-turbo")
 elif model_id == "Alpaca":
     llm =  AlpacaPipeline()
+elif model_id == "google/flan-t5-xl":
+    llm=SagemakerEndpoint(
+        endpoint_name="jumpstart-dft-hf-text2text-flan-t5-xl-4xlarge", 
+        credentials_profile_name="genai", 
+        region_name="us-east-1", 
+        model_kwargs={"temperature":0.1, "max_length": max_length},
+        content_handler=content_handler
+    )
 elif model_id in model_ids_hf:
     llm = CustomPipeline(model_id)
 else:
