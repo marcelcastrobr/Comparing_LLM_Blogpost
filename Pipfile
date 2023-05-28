@@ -16,8 +16,8 @@ tqdm = "*"
 numpy = "*"
 bitsandbytes = "*"
 datasets = "*"
-jsonargparse = {extras = ["signatures"], version = "*"}
 boto3 = "*"
+jsonargparse = {extras = ["signatures"], version = "*"}
 
 [dev-packages]
 

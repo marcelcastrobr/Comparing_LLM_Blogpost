@@ -11,10 +11,8 @@ from langchain import PromptTemplate, SagemakerEndpoint
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from typing import Dict
 import json
-
-
-
 import os
+
 
 model_ids_hf = [
         "EleutherAI/gpt-j-6B" ,
@@ -35,9 +33,11 @@ model_ids_hf = [
 ]
 
 # If you decide to  use GPT provide a  your key:
-os.environ["OPENAI_API_KEY"] = ''
-model_id = "google/flan-t5-xl"
-print(model_id)
+OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
+#model_id = "google/flan-t5-xl"
+model_id = "dolly-v2-12" #"GPT3"
+print(f'Model: {model_id}')
+
 
 
 class ContentHandler(LLMContentHandler):
